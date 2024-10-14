@@ -21,7 +21,7 @@ for full_path in glob.glob("../scripts/*.p"):
     print(f"Compiling {script}.p")
     subprocess.check_call(
         [
-            "../gf-pawncc/build/compiler/gf-pawncc.exe",
+            "../gf-pawncc/build/compiler/gf-pawncc",
             f"../scripts/{script}.p",
             "-d0",
             "-i=../scripts/",
@@ -31,7 +31,7 @@ for full_path in glob.glob("../scripts/*.p"):
     )
     subprocess.check_call(
         [
-            "../gf-pawncc/build/compiler/gf-pawncc.exe",
+            "../gf-pawncc/build/compiler/gf-pawncc",
             f"../scripts/{script}.p",
             "-d0",
             "-i../scripts/",
