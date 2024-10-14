@@ -19,6 +19,39 @@ stock Suspend(delay)
 	sleep(0);
 }
 
+stock SuspendN(arg0)
+{
+    if (arg0 <= 0) {
+        return;
+    }
+    for (new a = 0; a < arg0; a++) {
+        Suspend(1);
+    }
+}
+
+stock RandMax(max, arg1)
+{
+    if (arg1) {
+        return GetPublicRand(max);
+    }
+    return GetPublicRand(max - 1);
+}
+
+stock RandRange(arg0, arg1)
+{
+    return GetPublicRand(arg1 - arg0) + arg0;
+}
+
+stock AddRecord(arg0, arg1)
+{
+    return AddRecord_(arg0, arg1);
+}
+
+stock IncRecord(arg0)
+{
+    return IncRecord_(arg0);
+}
+
 stock FadeIn(arg0, color[])
 {
     FadeIn_(arg0, GetFnvHash64(color));
@@ -40,6 +73,13 @@ stock FadeWait()
         }
         Suspend(1);
     }
+}
+
+stock AddFieldObject(hash) {
+    return AddFieldObject_(hash);
+}
+stock DeleteFieldObject(hash) {
+    return DeleteFieldObject_(hash);
 }
 
 // dummy function to ensure libs get included

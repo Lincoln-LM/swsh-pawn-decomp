@@ -1,0 +1,308 @@
+#include "std.inc"
+
+fun_0378(arg0, arg1, arg2)
+{
+    if (arg1) {
+        FadeOut(8, "BLACK", 0, 1);
+        FadeWait();
+    }
+    new const a[50][2] = {
+        {0xE916E23DA591D984, 0xE916E23DA591D984},
+        {0x0E2062D38C3EF9E3, 0x0E2062D38C3EF9E3},
+        {0xAF666D0266259780, 0xAF666D0266259780},
+        {0xA183619BF94642F2, 0xA183619BF94642F2},
+        {0x86352C40E16DF487, 0x86352C40E16DF487},
+        {0xE767A090BEB9C325, 0xE767A090BEB9C325},
+        {0xCCB2A7102B591C9B, 0xCCB2A7102B591C9B},
+        {0x58A2B6B92F4FB8F4, 0x58A2B6B92F4FB8F4},
+        {0x49D3F2310889349B, 0x49D3F2310889349B},
+        {0xC65005298D53B4C1, 0xC65005298D53B4C1},
+        {0x39888AA044CBB5BE, 0x39888AA044CBB5BE},
+        {0x48BD6E15A4CDFC4F, 0x48BD6E15A4CDFC4F},
+        {0x81BD4C36039F3D00, 0x81BD4C36039F3D00},
+        {0x39888BA044CBB771, 0x39888BA044CBB771},
+        {0xC96B32457C7BF808, 0xC96B32457C7BF808},
+        {0x9597FE90D43DF315, 0x9597FE90D43DF315},
+        {0xEC9CB45BFD5ED38E, 0xEC9CB45BFD5ED38E},
+        {0x98E622DEA772CF4E, 0x98E622DEA772CF4E},
+        {0xB225E08614ED9B9B, 0xB225E08614ED9B9B},
+        {0xF9089D0BD3767135, 0xF9089D0BD3767135},
+        {0x0F57836FEFB770AB, 0x0F57836FEFB770AB},
+        {0x7F4D75EBEF718E44, 0x7F4D75EBEF718E44},
+        {0x4FF060F6FDCEBBFF, 0x4FF060F6FDCEBBFF},
+        {0x05C0FA9D712019F5, 0x05C0FA9D712019F5},
+        {0x1EF2A08E3CD07728, 0x1EF2A08E3CD07728},
+        {0xE40A30302D976A6A, 0xE40A30302D976A6A},
+        {0xD0548A55863F557F, 0xD0548A55863F557F},
+        {0x81AD195364D7530D, 0x81AD195364D7530D},
+        {0x81AD185364D7515A, 0x81AD185364D7515A},
+        {0xD0548955863F53CC, 0xD0548955863F53CC},
+        {0xD38C4C5DA827233A, 0xD38C4C5DA827233A},
+        {0x057954F7C1CE09EE, 0x057954F7C1CE09EE},
+        {0xF7099F0C8C270944, 0xF7099F0C8C270944},
+        {0x55A58623CFF9D1E9, 0x55A58623CFF9D1E9},
+        {0x55A58523CFF9D036, 0x55A58523CFF9D036},
+        {0x555E98E074244D53, 0x555E98E074244D53},
+        {0x950EF0E12A785683, 0x950EF0E12A785683},
+        {0x1D4D23376439DFBC, 0x1D4D23376439DFBC},
+        {0x25F5E4EBB39DBAF8, 0x25F5E4EBB39DBAF8},
+        {0xA522692CE3BBC00C, 0xA522692CE3BBC00C},
+        {0xAA12AA83DEB73F4A, 0xAA12AA83DEB73F4A},
+        {0xD7B9AF977541B7DB, 0xD7B9AF977541B7DB},
+        {0xDF994909A6729E2D, 0xDF994909A6729E2D},
+        {0x6E8657F073306565, 0x6E8657F073306565},
+        {0xB213195A2BF731A7, 0xB213195A2BF731A7},
+        {0xFB627E0726F6F5DA, 0xFB627E0726F6F5DA},
+        {0xA8413FF58D7B14C0, 0xA8413FF58D7B14C0},
+        {0x85B11FF80B3FD882, 0x85B11FF80B3FD882},
+        {0x5C9D67D79F90CF8D, 0x5C9D67D79F90CF8D},
+        {0x8B74ADD81302E847, 0x8B74ADD81302E847},
+    };
+    new b = 50;
+    new c = 0;
+    new d = 5;
+    if (FlagGet(0x82d47cf97f29d95e)) {
+        c = b;
+    } else {
+        c = 22
+    }
+    new e = 0;
+    new f = 0;
+    for (e = 0; e < b; e++) {
+        FlagSet(a[e][0]);
+        if (arg0) {
+            DeleteFieldObject(a[e][1])
+        }
+    }
+    for (e = 0; e < d; e++) {
+        for (f = 0; f < 100; f++) {
+            new g = RandMax(c, 0);
+            if (VanishFlagGet(a[g][0]) && arg2 != a[g][1]) {
+                FlagReset(a[g][0]);
+                if (arg0) {
+                    AddFieldObject(a[g][1])
+                }
+                break;
+            }
+        }
+    }
+    if (arg1) {
+        SuspendN(10);
+        FadeIn(8, "BLACK");
+        FadeWait();
+    }
+}
+
+fun_0988()
+{
+    new const a[114] = {
+        0x83C875EFA906D055,
+        0xEE8F8450BCA3DE0A,
+        0x65860F7B410DDF6D,
+        0x65AD03887685C372,
+        0xEE8F8350BCA3DC57,
+        0xD94D987D65DB0C8D,
+        0xEE8F8550BCA3DFBD,
+        0x40623887619A7B1F,
+        0xC106732AD66DA8A0,
+        0x0E4AECB6F233D0B8,
+        0x502B1A4EF1967F04,
+        0x55128B14CD11B3EB,
+        0xBDFD14911AEADEC9,
+        0xDB4613FD75C58A0E,
+        0xEE8F8250BCA3DAA4,
+        0x01E85E766C27BEA1,
+        0x80BB9D85DD809C55,
+        0xAF2D2F2359A6FE36,
+        0x80BB9B85DD8098EF,
+        0x3A31251CA6175ED2,
+        0x44DB2B59D1233AFB,
+        0x8D01A843E2B877E7,
+        0x665F491B2C71A4DF,
+        0x44DB2A59D1233948,
+        0x3166D3448524C532,
+        0x36E586DAB25C9F60,
+        0x47DE6BB6C7464E58,
+        0xF0FC138CCB1EA63D,
+        0xB446E05278CCF3E5,
+        0xFD324BECFC65485A,
+        0x928C7F29A2462DCA,
+        0x7B27FDA9583BF7A5,
+        0xDB4614FD75C58BC1,
+        0x80BB9A85DD80973C,
+        0xC417CBAFD3263844,
+        0x2373303FCB449076,
+        0x928C8029A2462F7D,
+        0x92A6721B974D0402,
+        0xA0EBC97547163211,
+        0x625C2E0F8595AC08,
+        0xB7325702152CD3DB,
+        0x89CDDA58AFFE7A29,
+        0x2373313FCB449229,
+        0xF76346D43E71B84D,
+        0x47A4DA08A537ADFB,
+        0x3B8F0A32A60193BB,
+        0xE593FFFED644B7AE,
+        0xF76345D43E71B69A,
+        0xC54BCB911EAC24BE,
+        0xE4C78690AD8CEF1A,
+        0x928C7E29A2462C17,
+        0xAAC3F80E926293A4,
+        0x2120C0D27E160AAB,
+        0x33A627FE7A215661,
+        0x11277633924103D3,
+        0xAA5756A62C112A10,
+        0x2F966FDAAE9AB64B,
+        0x8F2407434BF66C27,
+        0x625C2F0F8595ADBB,
+        0x70C3CE0F2E605E90,
+        0xBCE6DBD29BE18217,
+        0xBA7AAE8701AA6584,
+        0xFF29E4FAFF5F8029,
+        0x44DB2E59D1234014,
+        0x0FE9609E0A4722A4,
+        0xFF29E1FAFF5F7B10,
+        0xFF29E2FAFF5F7CC3,
+        0x421B0A63873F7B17,
+        0x421B0963873F7964,
+        0xFF29E3FAFF5F7E76,
+        0x081E51D71F158F6A,
+        0x081E50D71F158DB7,
+        0x081E4CD71F1586EB,
+        0x081E4BD71F158538,
+        0x44E5319C16CEF8EB,
+        0x2582FD20C02D7C0C,
+        0x081E52D71F15911D,
+        0x081E4DD71F15889E,
+        0x081E4FD71F158C04,
+        0x081E4ED71F158A51,
+        0x333288B49C709930,
+        0xC312586459899C47,
+        0x30E5E146117CFD3F,
+        0xDB93968A94A39968,
+        0xDB93988A94A39CCE,
+        0xDB93998A94A39E81,
+        0xDB93978A94A39B1B,
+        0xE2CC385B3FE2B134,
+        0xE2CC3B5B3FE2B64D,
+        0xE2CC395B3FE2B2E7,
+        0x47A4D908A537AC48,
+        0x7E13F014B9A3841F,
+        0x7E13EF14B9A3826C,
+        0x92E92852302B2014,
+        0xF166EA74C28C1DB2,
+        0xF166EB74C28C1F65,
+        0x12BDB59E2BB0EF2D,
+        0xF166E974C28C1BFF,
+        0xF166E874C28C1A4C,
+        0x14333109AA519AD6,
+        0x8439280395932425,
+        0x8439250395931F0C,
+        0x7C3667213965FB63,
+        0x84392603959320BF,
+        0x8439270395932272,
+        0x8439210395931840,
+        0x37675AA5569E17FE,
+        0x97AA059DC31CB80E,
+        0x55EF8735D82B8C81,
+        0xB2D4858027AB3B16,
+        0xC894179B304592B4,
+        0x2120C2D27E160E11,
+        0x6DE67722C901D65C,
+        0x2120BFD27E1608F8,
+    };
+    new const b[18] = {
+        0x60D1D4F9E7BFD1DF,
+        0x1380DA5C62565A44,
+        0xAEB57D1C32145D6D,
+        0x12510A2A04F0CE62,
+        0x9810AF505E3A68E3,
+        0x9810AF505E3A68E3,
+        0xF80DFFA510FBC928,
+        0x7485C2AA46EEBC51,
+        0xB9F19C3ADDFB5CD6,
+        0x74543C38747EBA94,
+        0xD37E83D434DF6788,
+        0xFBE6203B9E9DEDCD,
+        0x034527E5C6E458F1,
+        0xC8B2C5BBDA690CBC,
+        0x0611A2FFA0C329D7,
+        0x7C376045494861DA,
+        0x9CDD11E38DBDD185,
+        0x4D761A2BF219F500,
+    };
+    new c = sizeof(a);
+    new d = sizeof(b);
+    new e = 0;
+    for (e = 0; e < c; e++) {
+        FlagReset(a[e]);
+    }
+    if (RomGetVersion() == 44) {
+        FlagReset(0xeea36620f5006508);
+        FlagReset(0x7e13f214b9a38785);
+    } else {
+        FlagReset(0x40623787619a796c);
+        FlagReset(0x3b73dd2d4e934608);
+    }
+    if (FlagGet(0xf8b8f352fb6cdac6)) {
+        if (!FlagGet(0x82eef335284cbecf)) {
+            FlagReset(0x3df919dd90e61f73);
+        }
+    }
+    if (FlagGet(0x7d0b1ced4dbe8a87)) {
+        for (e = 0; e < d; e++) {
+            FlagReset(b[e]);
+        }
+    }
+}
+
+fun_0D38()
+{
+   if (RomGetVersion() == 44) {
+        FlagReset(0x707e94cad3530b48);
+        FlagReset(0x32ca446a9510ccfc);
+        FlagReset(0x1d5663615e6afd8b);
+    } else {
+        FlagReset(0x885847ca505253b1);
+        FlagReset(0x2c1a7f6b21be6f3d);
+        FlagReset(0xbc97e69123080e42);
+   }
+}
+
+fun_0E80()
+{
+   if (!FlagGet(0xfb985d31d249a548)) {
+        fun_0378(1, 0, 0);
+        CommandNOP();
+        fun_0988();
+        fun_0D38();
+        FlagSet(0xfb985d31d249a548);
+    }
+}
+
+main()
+{
+    switch (a_xD7477C97) {
+        case 0x0:
+            fun_1050()
+        case 0x1:
+            fun_1098()
+        default:
+            CommandNOP()
+    }
+}
+
+fun_1050()
+{
+    fun_0E80();
+    CommandNOP();
+}
+
+fun_1098()
+{
+    if (PlayerGetZoneID() == 0x776775717ea4468b) {
+        if (!FlagGet(0xf628242a3f422630)) {
+            FlagSet(0xf628242a3f422630);
+        }
+    }
+}
