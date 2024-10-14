@@ -1,12 +1,14 @@
 #include "std.inc"
 
-fun_0378(arg0, arg1, arg2)
+PlaceRandomNPCs(should_update_field_objects, should_fade, npc_to_skip)
 {
-    if (arg1) {
+    if (should_fade) {
         FadeOut(8, "BLACK", 0, 1);
         FadeWait();
     }
-    new const a[50][2] = {
+    new const npcs[50][2] = {
+        // Save file flag, FieldObject.UniqueHash
+        // (both end up being hashes of the same string)
         {0xE916E23DA591D984, 0xE916E23DA591D984},
         {0x0E2062D38C3EF9E3, 0x0E2062D38C3EF9E3},
         {0xAF666D0266259780, 0xAF666D0266259780},
@@ -58,35 +60,35 @@ fun_0378(arg0, arg1, arg2)
         {0x5C9D67D79F90CF8D, 0x5C9D67D79F90CF8D},
         {0x8B74ADD81302E847, 0x8B74ADD81302E847},
     };
-    new b = 50;
-    new c = 0;
-    new d = 5;
+    new npcs_size = sizeof(npcs);
+    new max_selectable_npc = 0;
+    new attempted_npc_count = 5;
     if (FlagGet(0x82d47cf97f29d95e)) {
-        c = b;
+        max_selectable_npc = npcs_size;
     } else {
-        c = 22
+        max_selectable_npc = 22
     }
-    new e = 0;
-    new f = 0;
-    for (e = 0; e < b; e++) {
-        FlagSet(a[e][0]);
-        if (arg0) {
-            DeleteFieldObject(a[e][1])
+    new i = 0;
+    new spawn_attempt = 0;
+    for (i = 0; i < npcs_size; i++) {
+        FlagSet(npcs[i][0]);
+        if (should_update_field_objects) {
+            DeleteFieldObject(npcs[i][1])
         }
     }
-    for (e = 0; e < d; e++) {
-        for (f = 0; f < 100; f++) {
-            new g = RandMax(c, 0);
-            if (VanishFlagGet(a[g][0]) && arg2 != a[g][1]) {
-                FlagReset(a[g][0]);
-                if (arg0) {
-                    AddFieldObject(a[g][1])
+    for (i = 0; i < attempted_npc_count; i++) {
+        for (spawn_attempt = 0; spawn_attempt < 100; spawn_attempt++) {
+            new random_npc = RandMax(max_selectable_npc, 0);
+            if (VanishFlagGet(npcs[random_npc][0]) && npc_to_skip != npcs[random_npc][1]) {
+                FlagReset(npcs[random_npc][0]);
+                if (should_update_field_objects) {
+                    AddFieldObject(npcs[random_npc][1])
                 }
                 break;
             }
         }
     }
-    if (arg1) {
+    if (should_fade) {
         SuspendN(10);
         FadeIn(8, "BLACK");
         FadeWait();
@@ -95,6 +97,7 @@ fun_0378(arg0, arg1, arg2)
 
 fun_0988()
 {
+    // some of these hashes differ by 1 character
     new const a[114] = {
         0x83C875EFA906D055,
         0xEE8F8450BCA3DE0A,
@@ -237,7 +240,7 @@ fun_0988()
     for (e = 0; e < c; e++) {
         FlagReset(a[e]);
     }
-    if (RomGetVersion() == 44) {
+    if (RomGetVersion() == GameVersion:Sword) {
         FlagReset(0xeea36620f5006508);
         FlagReset(0x7e13f214b9a38785);
     } else {
@@ -258,7 +261,7 @@ fun_0988()
 
 fun_0D38()
 {
-   if (RomGetVersion() == 44) {
+   if (RomGetVersion() == GameVersion:Sword) {
         FlagReset(0x707e94cad3530b48);
         FlagReset(0x32ca446a9510ccfc);
         FlagReset(0x1d5663615e6afd8b);
@@ -272,7 +275,7 @@ fun_0D38()
 fun_0E80()
 {
    if (!FlagGet(0xfb985d31d249a548)) {
-        fun_0378(1, 0, 0);
+        PlaceRandomNPCs(1, 0, 0);
         CommandNOP();
         fun_0988();
         fun_0D38();

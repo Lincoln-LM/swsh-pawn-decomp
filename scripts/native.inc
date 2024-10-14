@@ -1,5 +1,10 @@
 native _Suspend(delay);
 
+enum GameVersion {
+    Sword = 44,
+    Shield = 45
+}
+
 native GetFnvHash64(string[]);
 native FadeIn_(arg0, hash);
 native FadeOut_(arg0, hash, arg2, arg3);
@@ -17,5 +22,5 @@ native IncRecord_(arg0);
 native DeleteFieldObject_(hash);
 native AddFieldObject_(hash);
 native VanishFlagGet(hash);
-native RomGetVersion();
+native GameVersion:RomGetVersion();
 native PlayerGetZoneID();
