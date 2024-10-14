@@ -113,11 +113,11 @@ class PawnDisassembler:
 
     def dump_code(self, file_path: str):
         with open(file_path, "wb") as f:
-            f.write(self.code[:self.codesize])
+            f.write(self.code[: self.codesize])
 
     def dump_data(self, file_path: str):
         with open(file_path, "wb") as f:
-            f.write(self.code[self.codesize:])
+            f.write(self.code[self.codesize :])
 
     def explore(self):
         """Run through opcodes to find labels"""
@@ -399,9 +399,7 @@ class PawnDisassembler:
                 # function prologue
                 case Opcode.OP_PROC:
                     if cip not in self.labels:
-                        self.labels[cip] = (
-                            f"fun_{cip:04X}"
-                        )
+                        self.labels[cip] = f"fun_{cip:04X}"
                     cip += 8
                 case Opcode.OP_NONE:
                     cip += 8
