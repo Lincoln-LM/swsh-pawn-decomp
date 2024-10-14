@@ -1,9 +1,4 @@
-#include "suspend.inc"
-#pragma library Core
-#pragma rational Float
-#include "float.inc"
-
-native CommandNOP()
+#include "std.inc"
 
 #pragma unused b_x107770
 #pragma unused c_xEA20B6C6

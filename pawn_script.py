@@ -304,6 +304,7 @@ class PawnDisassembler:
                     | Opcode.OP_PUSH2_ADR
                     | Opcode.OP_CONST
                     | Opcode.OP_CONST_S
+                    | Opcode.OP_LOAD_BOTH
                 ):
                     cip += 8
                     cip += 8
@@ -405,7 +406,7 @@ class PawnDisassembler:
                     cip += 8
                 case _:
                     cip += 8
-                    assert False, f"{opcode} unimplemented"
+                    assert False, f"{opcode.name} unimplemented"
 
     def infodump(self) -> str:
         """Generate an info dump of the script"""
@@ -615,6 +616,7 @@ class PawnDisassembler:
                     | Opcode.OP_PUSH2_ADR
                     | Opcode.OP_CONST
                     | Opcode.OP_CONST_S
+                    | Opcode.OP_LOAD_BOTH
                 ):
                     cip += 8
                     for _ in range(2):

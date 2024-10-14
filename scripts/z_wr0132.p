@@ -1,19 +1,4 @@
-#include "suspend.inc"
-#pragma library Core
-#pragma rational Float
-#include "float.inc"
-
-native GetFnvHash64(string[]);
-native FadeIn_(arg0, hash);
-native FadeOut_(arg0, hash, arg2, arg3);
-native FadeWait_();
-native CommandNOP();
-native FlagGet(hash);
-native PokePartyCanEvolve(species);
-native ReserveScript(hash);
-native FlagSet(hash);
-native PokePartyCallEvolve(species);
-native FlagReset(hash);
+#include "std.inc"
 
 #pragma unused a_xD7477C97
 #pragma unused b_x107770
@@ -23,33 +8,6 @@ public a_xD7477C97 = 0;
 public b_x107770 = 0;
 public c_xEA20B6C6 = 99;
 public d_xEA1E9F9B = 99;
-
-
-#pragma unused FadeIn
-FadeIn(arg0, color[])
-{
-    FadeIn_(arg0, GetFnvHash64(color));
-}
-
-#pragma unused FadeOut
-FadeOut(arg0, color[], arg2, arg3)
-{
-    FadeOut_(arg0, GetFnvHash64(color), arg2, arg3);
-}
-
-#pragma unused FadeWait
-FadeWait()
-{
-    // functionally "while (true)" but inserts an extra jump instruction
-    // at the start of the loop
-    for (;;)
-    {
-        if (FadeWait_() != 0) {
-            return;
-        }
-        Suspend(1);
-    }
-}
 
 main()
 {
@@ -94,7 +52,7 @@ fun_0458()
 {
     FadeOut(8, "BLACK", 0, 1);
     FadeWait();
-    PokePartyCallEvolve(562);
+    PokePartyCallEvolve(562, 1);
     FadeIn(8, "BLACK");
     FadeWait();
 }
@@ -103,5 +61,3 @@ fun_0520()
 {
     FlagReset(0x7305c919d8bfa59c);
 }
-
-
