@@ -1,5 +1,6 @@
 #include "std.inc"
 
+// Places the random fishers, hikers, and breeders around the wild area
 PlaceRandomNPCs(should_update_field_objects, should_fade, npc_to_skip)
 {
     if (should_fade) {
