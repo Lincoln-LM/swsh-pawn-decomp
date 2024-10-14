@@ -1,0 +1,3 @@
+[submodule "gf-pawncc"]
+	path = gf-pawncc
+	url = https://github.com/Lincoln-LM/gf-pawncc.git
