@@ -20,7 +20,7 @@ fun_0510()
     if (!FlagGet(0x6023e9dc8909c446)) {
         CommandNOP();
         FlagSet(0x6023e9dc8909c446);
-        fun_16A0(1, 0, 0);
+        PlaceRandomNPCs(1, 0, 0);
         fun_0B50();
         fun_0378();
         if (WorkGet(0xc5bd7dd554ac4b39) > 310) {
@@ -463,7 +463,7 @@ fun_0B50()
     }
 }
 
-new const npcs_1[45][2] = {
+new const trader_locations[45][2] = {
     {0x891a51687f8c6928,0x891a51687f8c6928},
     {0x49583ccc2a2211dd,0x49583ccc2a2211dd},
     {0x3e22d65317fef8a2,0x3e22d65317fef8a2},
@@ -515,13 +515,14 @@ fun_15A8(arg0)
 {
     new a = 0;
     for (a = 0; a < 45; a++) {
-        if (npcs_1[a][1] == arg0) {
+        if (trader_locations[a][1] == arg0) {
             return a;
         }
     }
     return 0;
 }
-new const t15[12][3] = {
+new const ioa_trade_table[12][3] = {
+    // EncounterTrade.Hash0, Message Hash (msg_field_trade_wr02_01_%02d), Game Versions
     {0x4e002aa39028ae6e,0xec2bade2ffe5a026,GameVersion:Any},
     {0x4e0029a39028acbb,0xec2bace2ffe59e73,GameVersion:Sword},
     {0x4e0028a39028ab08,0xec2babe2ffe59cc0,GameVersion:Shield},
@@ -543,13 +544,14 @@ new const work_ids[5][2] = {
     {0x70aee96991e89acf,0xa950e1647999dafd},
 };
 
-fun_16A0(should_update_field_objects, should_fade, arg2)
+// Places the random apricorn girls, digging ma's, and traders around the wild area
+PlaceRandomNPCs(should_update_field_objects, should_fade, arg2)
 {
     if (should_fade) {
         FadeOut(8, "BLACK", 0, 1);
         FadeWait();
     }
-    new npcs_0[51][2] = {
+    new npcs[51][2] = {
         {0xfc84ae7cd62819d9,0xfc84ae7cd62819d9},
         {0xbbaf84340e1996e6,0xbbaf84340e1996e6},
         {0x58457954d244bff7,0x58457954d244bff7},
@@ -607,24 +609,24 @@ fun_16A0(should_update_field_objects, should_fade, arg2)
     new i = 0;
     new spawn_attempt = 0;
     for (i = 0; i < 51; i++) {
-        FlagSet(npcs_0[i][0]);
+        FlagSet(npcs[i][0]);
         if (should_update_field_objects) {
-            DeleteFieldObject(npcs_0[i][1]);
+            DeleteFieldObject(npcs[i][1]);
         }
     }
     for (i = 0; i < 45; i++) {
-        FlagSet(npcs_1[i][0]);
+        FlagSet(trader_locations[i][0]);
         if (should_update_field_objects) {
-            DeleteFieldObject(npcs_1[i][1]);
+            DeleteFieldObject(trader_locations[i][1]);
         }
     }
     for (i = 0; i < attempted_npc_0_count; i++) {
         for (spawn_attempt = 0; spawn_attempt < 100; spawn_attempt++) {
             new random_npc = RandMax(51, 0);
-            if (VanishFlagGet(npcs_0[random_npc][0]) && arg2 != npcs_0[random_npc][1]) {
-                FlagReset(npcs_0[random_npc][0]);
+            if (VanishFlagGet(npcs[random_npc][0]) && arg2 != npcs[random_npc][1]) {
+                FlagReset(npcs[random_npc][0]);
                 if (should_update_field_objects) {
-                    AddFieldObject(npcs_0[random_npc][1])
+                    AddFieldObject(npcs[random_npc][1])
                 }
                 break;
             }
@@ -633,13 +635,13 @@ fun_16A0(should_update_field_objects, should_fade, arg2)
     for (i = 0; i < attempted_npc_1_count; i++) {
         for (spawn_attempt = 0; spawn_attempt < 100; spawn_attempt++) {
             new random_npc = RandMax(45, 0);
-            if (VanishFlagGet(npcs_1[random_npc][0]) && arg2 != npcs_1[random_npc][1]) {
-                FlagReset(npcs_1[random_npc][0]);
+            if (VanishFlagGet(trader_locations[random_npc][0]) && arg2 != trader_locations[random_npc][1]) {
+                FlagReset(trader_locations[random_npc][0]);
                 if (should_update_field_objects) {
-                    AddFieldObject(npcs_1[random_npc][1]);
+                    AddFieldObject(trader_locations[random_npc][1]);
                 }
-                WorkSet(work_ids[i][0], fun_15A8(npcs_1[random_npc][1]));
-                WorkSet(work_ids[i][1], fun_2158());
+                WorkSet(work_ids[i][0], fun_15A8(trader_locations[random_npc][1]));
+                WorkSet(work_ids[i][1], ChooseRandomTrade());
                 break;
             }
         }
@@ -651,17 +653,18 @@ fun_16A0(should_update_field_objects, should_fade, arg2)
     }
 }
 
-fun_2158()
+// Selects a random trade from those allowed in the game's version
+ChooseRandomTrade()
 {
-    new a[12] = {0, ...};
-    new b = 0;
-    for (new c = 0; c < 12; c++) {
-        if (t15[c][2] == RomGetVersion() || t15[c][2] == 0) {
-            a[b] = c;
-            b++;
+    new available_trades[12] = {0, ...};
+    new trade_count = 0;
+    for (new i = 0; i < 12; i++) {
+        if (ioa_trade_table[i][2] == RomGetVersion() || ioa_trade_table[i][2] == 0) {
+            available_trades[trade_count] = i;
+            trade_count++;
         }
     }
-    return a[RandMax(b, 0)];
+    return available_trades[RandMax(trade_count, 0)];
 }
 
 main()
