@@ -1,6 +1,6 @@
 #include "std.inc"
 
-fun_0378()
+RefreshHiddenItems()
 {
    if (RomGetVersion() == GameVersion:Sword) {
         FlagReset(z_wr0201_HiddenItem_K_0);
@@ -15,26 +15,27 @@ fun_0378()
    }
 }
 
-fun_0510()
+TryResetDay()
 {
     if (!FlagGet(TMFLG_WIDEROAD02_DAY_RESET_END)) {
         CommandNOP();
         FlagSet(TMFLG_WIDEROAD02_DAY_RESET_END);
-        PlaceRandomNPCs(1, 0, 0);
-        fun_0B50();
-        fun_0378();
+        PlaceRandomNPCs(true, false, 0);
+        RefreshGimmickSpawners();
+        RefreshHiddenItems();
         if (WorkGet(WK_SCENE_R01_MAIN_MASTER) > 310) {
-            fun_0660(0);
+            PlaceGymLeaders(false);
         }
     }
 }
 
-fun_0660(arg0)
+// Places the random gym leaders (and hop) that appear with enough story progress
+PlaceGymLeaders(should_skip_rival)
 {
-    new a = 0;
-    new b = 0;
+    new i = 0;
+    new chosen = 0;
     if (RomGetVersion() == GameVersion:Sword) {
-        new c[70] = {
+        new gym_leaders[70] = {
             FV_R1_YOROIJIMA_HOP_01,
             FV_R1_YOROIJIMA_HOP_02,
             FV_R1_YOROIJIMA_HOP_03,
@@ -106,18 +107,18 @@ fun_0660(arg0)
             FV_R1_YOROIJIMA_MAKUWA_06,
             FV_R1_YOROIJIMA_MAKUWA_07,
         };
-        for (a = 0; a < 70; a++) {
-            FlagSet(c[a]);
+        for (i = 0; i < 70; i++) {
+            FlagSet(gym_leaders[i]);
         }
-        if (arg0) {
+        if (should_skip_rival) {
             new d = 7;
-            b = RandMax(70 - d, 0) + d;
+            chosen = RandMax(70 - d, false) + d;
         } else {
-            b = RandMax(70, 0);
+            chosen = RandMax(70, false);
         }
-        FlagReset(c[b]);
+        FlagReset(gym_leaders[chosen]);
     } else {
-        new c[70] = {
+        new gym_leaders[70] = {
             FV_R1_YOROIJIMA_HOP_01,
             FV_R1_YOROIJIMA_HOP_02,
             FV_R1_YOROIJIMA_HOP_03,
@@ -189,18 +190,18 @@ fun_0660(arg0)
             FV_R1_YOROIJIMA_MELON_06,
             FV_R1_YOROIJIMA_MELON_07,
         };
-        for (a = 0; a < 70; a++) {
-            FlagSet(c[a]);
+        for (i = 0; i < 70; i++) {
+            FlagSet(gym_leaders[i]);
         }
-        if (arg0) {
+        if (should_skip_rival) {
             new d = 7;
-            b = RandMax(70 - d, 0) + d;
+            chosen = RandMax(70 - d, false) + d;
         } else {
-            b = RandMax(70, 0);
+            chosen = RandMax(70, false);
         }
-        FlagReset(c[b]);
+        FlagReset(gym_leaders[chosen]);
     }
-    if (b < 7) {
+    if (chosen < 7) {
         FlagSet(z_wr0201_i0101_RIVAL_0);
     } else {
         if (WorkGet(WK_SCENE_R02_GST_MASTER) < 30) {
@@ -209,9 +210,9 @@ fun_0660(arg0)
     }
 }
 
-fun_0B50()
+RefreshGimmickSpawners()
 {
-    new a[181] = {
+    new spawners[181] = {
         z_wr0201_SymbolEncountPokemonGimmickSpawner_WR02_Common,
         z_wr0201_SymbolEncountPokemonGimmickSpawner_WR02_Common_0,
         z_wr0201_SymbolEncountPokemonGimmickSpawner_WR02_Common_1,
@@ -394,9 +395,9 @@ fun_0B50()
         z_wr0203_SymbolEncountPokemonGimmickSpawner_WR02_Emonga_0_0_0_0_0_0_0,
         z_wr0203_SymbolEncountPokemonGimmickSpawner_WR02_Emonga_0_0_0_0_0_0_0_0,
     };
-    new b = 0;
-    for (b = 0; b < 181; b++) {
-        FlagReset(a[b]);
+    new i = 0;
+    for (i = 0; i < 181; i++) {
+        FlagReset(spawners[i]);
     }
     if (RomGetVersion() == GameVersion:Sword) {
         FlagReset(z_wr0202_SymbolEncountPokemonGimmickSpawner_WR02_Common_wr0202_K_01);
@@ -454,11 +455,13 @@ fun_0B50()
         FlagReset(z_wr0211_SymbolEncountPokemonGimmickSpawner_WR02_Common_wr0211_T_04);
     }
     if (FlagGet(EF_R2_MEMO_SANCHO_START)) {
+        // Galarian Moltres
         if (!FlagGet(EF_R2_FAIYAA_GET)) {
             FlagReset(z_wr02onload_SymbolEncountPokemonGimmickSpawner_WR02_FIRE);
         }
     }
-    if (RandMax(100, 0) <= 0) {
+    // IOA Wailord
+    if (RandMax(100, false) <= 0) {
         FlagReset(z_wr02onload_SymbolEncountPokemonGimmickSpawner_WR02_Hoeruo_0);
     }
 }
@@ -511,12 +514,12 @@ new const trader_locations[45][2] = {
     {z_wr0231_WR02_TradeNPC,z_wr0231_WR02_TradeNPC},
 };
 
-fun_15A8(arg0)
+GetTraderIdx(hash)
 {
-    new a = 0;
-    for (a = 0; a < 45; a++) {
-        if (trader_locations[a][1] == arg0) {
-            return a;
+    new i = 0;
+    for (i = 0; i < sizeof(trader_locations); i++) {
+        if (trader_locations[i][1] == hash) {
+            return i;
         }
     }
     return 0;
@@ -536,7 +539,7 @@ new const ioa_trade_table[12][3] = {
     {0x4dfca6a39025984b,msg_field_trade_wr02_01_10,GameVersion:Any},
     {0x4dfca7a3902599fe,msg_field_trade_wr02_01_11,GameVersion:Any},
 };
-new const work_ids[5][2] = {
+new const ioa_trade_storage[5][2] = {
     {SYS_WORK_WR02_TRADE_NPC1_INDEX,SYS_WORK_WR02_TRADE_NPC1_POKEID},
     {SYS_WORK_WR02_TRADE_NPC2_INDEX,SYS_WORK_WR02_TRADE_NPC2_POKEID},
     {SYS_WORK_WR02_TRADE_NPC3_INDEX,SYS_WORK_WR02_TRADE_NPC3_POKEID},
@@ -544,14 +547,14 @@ new const work_ids[5][2] = {
     {SYS_WORK_WR02_TRADE_NPC5_INDEX,SYS_WORK_WR02_TRADE_NPC5_POKEID},
 };
 
-// Places the random apricorn girls, digging ma's, and traders around the wild area
-PlaceRandomNPCs(should_update_field_objects, should_fade, arg2)
+// Places the random apricorn girls and traders around the wild area
+PlaceRandomNPCs(should_update_field_objects, should_fade, npc_to_skip)
 {
     if (should_fade) {
         FadeOut(8, "BLACK", 0, 1);
         FadeWait();
     }
-    new npcs[51][2] = {
+    new npc_locations[51][2] = {
         {z_wr0201_WR02_ZukanNPC,z_wr0201_WR02_ZukanNPC},
         {z_wr0201_WR02_ZukanNPC_0,z_wr0201_WR02_ZukanNPC_0},
         {z_wr0202_WR02_ZukanNPC_0,z_wr0202_WR02_ZukanNPC_0},
@@ -608,13 +611,13 @@ PlaceRandomNPCs(should_update_field_objects, should_fade, arg2)
     new attempted_npc_1_count = 3;
     new i = 0;
     new spawn_attempt = 0;
-    for (i = 0; i < 51; i++) {
-        FlagSet(npcs[i][0]);
+    for (i = 0; i < sizeof(npc_locations); i++) {
+        FlagSet(npc_locations[i][0]);
         if (should_update_field_objects) {
-            DeleteFieldObject(npcs[i][1]);
+            DeleteFieldObject(npc_locations[i][1]);
         }
     }
-    for (i = 0; i < 45; i++) {
+    for (i = 0; i < sizeof(trader_locations); i++) {
         FlagSet(trader_locations[i][0]);
         if (should_update_field_objects) {
             DeleteFieldObject(trader_locations[i][1]);
@@ -622,11 +625,11 @@ PlaceRandomNPCs(should_update_field_objects, should_fade, arg2)
     }
     for (i = 0; i < attempted_npc_0_count; i++) {
         for (spawn_attempt = 0; spawn_attempt < 100; spawn_attempt++) {
-            new random_npc = RandMax(51, 0);
-            if (VanishFlagGet(npcs[random_npc][0]) && arg2 != npcs[random_npc][1]) {
-                FlagReset(npcs[random_npc][0]);
+            new random_location = RandMax(sizeof(npc_locations), false);
+            if (VanishFlagGet(npc_locations[random_location][0]) && npc_to_skip != npc_locations[random_location][1]) {
+                FlagReset(npc_locations[random_location][0]);
                 if (should_update_field_objects) {
-                    AddFieldObject(npcs[random_npc][1])
+                    AddFieldObject(npc_locations[random_location][1])
                 }
                 break;
             }
@@ -634,14 +637,14 @@ PlaceRandomNPCs(should_update_field_objects, should_fade, arg2)
     }
     for (i = 0; i < attempted_npc_1_count; i++) {
         for (spawn_attempt = 0; spawn_attempt < 100; spawn_attempt++) {
-            new random_npc = RandMax(45, 0);
-            if (VanishFlagGet(trader_locations[random_npc][0]) && arg2 != trader_locations[random_npc][1]) {
-                FlagReset(trader_locations[random_npc][0]);
+            new random_location = RandMax(sizeof(trader_locations), false);
+            if (VanishFlagGet(trader_locations[random_location][0]) && npc_to_skip != trader_locations[random_location][1]) {
+                FlagReset(trader_locations[random_location][0]);
                 if (should_update_field_objects) {
-                    AddFieldObject(trader_locations[random_npc][1]);
+                    AddFieldObject(trader_locations[random_location][1]);
                 }
-                WorkSet(work_ids[i][0], fun_15A8(trader_locations[random_npc][1]));
-                WorkSet(work_ids[i][1], ChooseRandomTrade());
+                WorkSet(ioa_trade_storage[i][0], GetTraderIdx(trader_locations[random_location][1]));
+                WorkSet(ioa_trade_storage[i][1], ChooseRandomTrade());
                 break;
             }
         }
@@ -664,14 +667,14 @@ ChooseRandomTrade()
             trade_count++;
         }
     }
-    return available_trades[RandMax(trade_count, 0)];
+    return available_trades[RandMax(trade_count, false)];
 }
 
 main()
 {
     switch (a_xD7477C97) {
         case 0x0:
-            fun_2480()
+            LoadZone()
         case 0x1:
             fun_2588()
         default:
@@ -679,14 +682,14 @@ main()
     }
 }
 
-fun_2480()
+LoadZone()
 {
     if (WorkGet(WK_EV_R1_SUB_012_PROGRESS) <= 0) {
         if (WorkGet(WK_SCENE_MAIN_MASTER) >= 1320) {
             WorkSet(WK_EV_R1_SUB_012_PROGRESS, 1);
         }
     }
-    fun_0510();
+    TryResetDay();
     printf(">zone_change z_wr0201\n");
 }
 

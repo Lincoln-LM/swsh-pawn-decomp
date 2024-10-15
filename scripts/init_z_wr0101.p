@@ -79,7 +79,7 @@ PlaceRandomNPCs(should_update_field_objects, should_fade, npc_to_skip)
     }
     for (i = 0; i < attempted_npc_count; i++) {
         for (spawn_attempt = 0; spawn_attempt < 100; spawn_attempt++) {
-            new random_npc = RandMax(max_selectable_npc, 0);
+            new random_npc = RandMax(max_selectable_npc, false);
             if (VanishFlagGet(npcs[random_npc][0]) && npc_to_skip != npcs[random_npc][1]) {
                 FlagReset(npcs[random_npc][0]);
                 if (should_update_field_objects) {
@@ -96,10 +96,9 @@ PlaceRandomNPCs(should_update_field_objects, should_fade, npc_to_skip)
     }
 }
 
-fun_0988()
+RefreshGimmickSpawners()
 {
-    // some of these hashes differ by 1 character
-    new const a[114] = {
+    new const spawners[114] = {
         z_wr0102_SymbolEncountPokemonGimmickSpawner_WR_Common,
         z_wr0102_SymbolEncountPokemonGimmickSpawner_WR_Common_0,
         z_wr0102_SymbolEncountPokemonGimmickSpawner_WR_Common_0_0,
@@ -215,7 +214,7 @@ fun_0988()
         z_wr0136_SymbolEncountPokemonGimmickSpawner_WR_Common,
         z_wr0136_SymbolEncountPokemonGimmickSpawner_WR_Common_1,
     };
-    new const b[18] = {
+    new const postgame_spawners[18] = {
         z_wr0102_SymbolEncountPokemonGimmickSpawner_WR_GameClear,
         z_wr0103_SymbolEncountPokemonGimmickSpawner_WR_GameClear,
         z_wr0104_SymbolEncountPokemonGimmickSpawner_WR_GameClear,
@@ -235,11 +234,11 @@ fun_0988()
         z_wr0135_SymbolEncountPokemonGimmickSpawner_WR_GameClear,
         z_wr0136_SymbolEncountPokemonGimmickSpawner_WR_GameClear,
     };
-    new c = sizeof(a);
-    new d = sizeof(b);
-    new e = 0;
-    for (e = 0; e < c; e++) {
-        FlagReset(a[e]);
+    new spawner_count = sizeof(spawners);
+    new postgame_count = sizeof(postgame_spawners);
+    new i = 0;
+    for (i = 0; i < spawner_count; i++) {
+        FlagReset(spawners[i]);
     }
     if (RomGetVersion() == GameVersion:Sword) {
         FlagReset(z_wr0103_SymbolEncountPokemonGimmickSpawner_WR_Common);
@@ -249,13 +248,14 @@ fun_0988()
         FlagReset(z_wr0132_SymbolEncountPokemonGimmickSpawner);
     }
     if (FlagGet(EF_R2_MEMO_SANCHO_START)) {
+        // Galarian Zapdos
         if (!FlagGet(EF_R2_SANDAA_GET)) {
             FlagReset(z_wr01onload_SymbolEncountPokemonGimmickSpawner_WR02_THUNDER);
         }
     }
     if (FlagGet(FSYS_GAME_CLEAR)) {
-        for (e = 0; e < d; e++) {
-            FlagReset(b[e]);
+        for (i = 0; i < postgame_count; i++) {
+            FlagReset(postgame_spawners[i]);
         }
     }
 }
@@ -278,7 +278,7 @@ fun_0E80()
    if (!FlagGet(TMFLG_WIDEROAD_DAY_RESET_END)) {
         PlaceRandomNPCs(1, 0, 0);
         CommandNOP();
-        fun_0988();
+        RefreshGimmickSpawners();
         fun_0D38();
         FlagSet(TMFLG_WIDEROAD_DAY_RESET_END);
     }

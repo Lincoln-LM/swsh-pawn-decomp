@@ -6,11 +6,11 @@ main()
         case 0x8d0140735a01920e:
             fun_0360()
         case 0xceab368884e58633:
-            fun_0378()
+            CheckYamaskEvolution()
         case 0x261dc1a76131e052:
-            fun_0458()
+            EvolveYamask()
         case 0x80a140f427c3f883:
-            fun_0520()
+            DisableYamaskEvolution()
         case 0:
             fun_0348()
         default:
@@ -28,7 +28,7 @@ fun_0360()
     return 0;
 }
 
-fun_0378()
+CheckYamaskEvolution()
 {
     if (FlagGet(FSYS_DESUMASU_EVOLVE_ENABLE) != 0) {
         return;
@@ -39,7 +39,7 @@ fun_0378()
     }
 }
 
-fun_0458()
+EvolveYamask()
 {
     FadeOut(8, "BLACK", 0, 1);
     FadeWait();
@@ -48,7 +48,7 @@ fun_0458()
     FadeWait();
 }
 
-fun_0520()
+DisableYamaskEvolution()
 {
     FlagReset(FSYS_DESUMASU_EVOLVE_ENABLE);
 }
