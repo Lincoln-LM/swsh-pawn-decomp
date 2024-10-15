@@ -1,6 +1,7 @@
 native _Suspend(delay);
 
 enum GameVersion {
+    Any = 0,
     Sword = 44,
     Shield = 45
 }
@@ -16,6 +17,8 @@ native ReserveScript(hash);
 native FlagSet(hash);
 native PokePartyCallEvolve(species, form);
 native FlagReset(hash);
+native WorkGet(hash);
+native WorkSet(hash, value);
 native GetPublicRand(maximum);
 native AddRecord_(arg0, arg1);
 native IncRecord_(arg0);
