@@ -3,6 +3,7 @@
 #include "console.inc"
 #include "float.inc"
 #include "native.inc"
+#include "hashes.inc"
 
 #pragma unused a_xD7477C97
 #pragma unused b_x107770

@@ -30,12 +30,12 @@ fun_0360()
 
 fun_0378()
 {
-    if (FlagGet(0x7305c919d8bfa59c) != 0) {
+    if (FlagGet(FSYS_DESUMASU_EVOLVE_ENABLE) != 0) {
         return;
     }
     if (PokePartyCanEvolve(562)) {
         ReserveScript(0x261dc1a76131e052);
-        FlagSet(0x7305c919d8bfa59c);
+        FlagSet(FSYS_DESUMASU_EVOLVE_ENABLE);
     }
 }
 
@@ -50,5 +50,5 @@ fun_0458()
 
 fun_0520()
 {
-    FlagReset(0x7305c919d8bfa59c);
+    FlagReset(FSYS_DESUMASU_EVOLVE_ENABLE);
 }
