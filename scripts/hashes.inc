@@ -650,3 +650,4 @@
 #define z_wr0201_i0101_RIVAL_0 0xecc628a127bd172a
 #define z_wr0201 0x908a64718ca374e6
 #define FSYS_DESUMASU_EVOLVE_ENABLE 0x7305c919d8bfa59c
+#define msg_common_wattget_01 0x36670b8a71e9237d

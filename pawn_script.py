@@ -493,11 +493,13 @@ class PawnDisassembler:
                         self.code[cip : cip + 8], "little", signed=True
                     )
                     cip += 8
-                    result_size = int.from_bytes(
+                    stack_frame_size = int.from_bytes(
                         self.code[cip : cip + 8], "little", signed=True
                     )
+                    assert stack_frame_size % 8 == 0
+                    arg_count = stack_frame_size // 8
                     assert index < len(self.native_functions)
-                    disassembly += f", {self.native_functions[index]} {result_size=}"
+                    disassembly += f", {self.native_functions[index]} {arg_count=}"
                     cip += 8
                 # 1 param packed
                 case (
