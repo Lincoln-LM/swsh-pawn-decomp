@@ -208,6 +208,46 @@ stock AddWatt(delta)
     return AddWatt_(delta);
 }
 
+enum WildBattleResult {
+    Defeat = 0,
+    Win = 1,
+    Unk2 = 2,
+    RunAway = 3,
+    Unk4 = 4,
+    Capture = 5,
+    Unk6 = 6,
+}
+
+stock WildBattleResult:GetWildBattleResult()
+{
+    new data[3];
+    GetWildBattleResult_(data);
+    return data[0];
+}
+
+stock bool:HasLostLastWildBattle()
+{
+    if (GetWildBattleResult() == WildBattleResult:Unk2) {
+        if (!PokePartyGetCount(1, 0)) {
+            return true;
+        }
+    }
+    return GetWildBattleResult() == WildBattleResult:Defeat;
+}
+
+stock GetLastSymbolEncoutSpawner()
+{
+    new data[4];
+    GetLastSymbolEncountParam(data);
+    return data[2];
+}
+
+stock LoseBattle()
+{
+    CallBattleLose_();
+    SuspendN(1);
+}
+
 // dummy function to ensure libs get included
 stock _dummy() {
     heapspace();

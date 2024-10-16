@@ -41,3 +41,7 @@ native UpdateWalletWindow_(arg0);
 native AddWatt_(delta);
 native WordSetNumber(arg0, arg1, arg2, arg3);
 native TempWorkGet(idx);
+native GetWildBattleResult_(out[]);
+native PokePartyGetCount(arg0, arg1);
+native GetLastSymbolEncountParam(out[]);
+native CallBattleLose_();
