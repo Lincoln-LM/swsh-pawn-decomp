@@ -65,3 +65,7 @@ for i, full_path in enumerate(paths):
         FILE_HASH,
         file_hashes[f"{script}.amx"],
     )
+
+total_scripts = len(file_hashes)
+matching_scripts = len(paths)
+print(f"{matching_scripts}/{total_scripts} ({matching_scripts/total_scripts*100:.2f}%) decompiled scripts")
