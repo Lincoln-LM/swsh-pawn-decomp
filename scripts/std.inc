@@ -5,14 +5,14 @@
 #include "native.inc"
 #include "hashes.inc"
 
-#pragma unused a_xD7477C97
-#pragma unused b_x107770
-#pragma unused c_xEA20B6C6
-#pragma unused d_xEA1E9F9B
-public a_xD7477C97 = 0;
-public b_x107770 = 0;
-public c_xEA20B6C6 = 99;
-public d_xEA1E9F9B = 99;
+#pragma unused g_mode
+#pragma unused h_x107770
+#pragma unused i_xEA20B6C6
+#pragma unused j_xEA1E9F9B
+public g_mode = 0;
+public h_x107770 = 0;
+public i_xEA20B6C6 = 99;
+public j_xEA1E9F9B = 99;
 
 stock Suspend(delay)
 {

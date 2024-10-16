@@ -2,7 +2,7 @@
 
 main()
 {
-    switch (a_xD7477C97) {
+    switch (g_mode) {
         case 0xd93f6018941f018d:
             fun_0100()
         case 0:

@@ -17,7 +17,7 @@ RewardWatts(watt_delta)
 
 main()
 {
-    switch (a_xD7477C97) {
+    switch (g_mode) {
         case 0xc0c7dde20a0513d6:
             CalculateWattReward()
         case 0:

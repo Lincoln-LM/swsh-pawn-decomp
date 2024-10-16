@@ -672,13 +672,13 @@ ChooseRandomTrade()
 
 main()
 {
-    switch (a_xD7477C97) {
+    switch (g_mode) {
         case 0x0:
             LoadZone()
         case 0x1:
             fun_2588()
         default:
-            printf("scrid =%d Not Found \n", a_xD7477C97)
+            printf("scrid =%d Not Found \n", g_mode)
     }
 }
 

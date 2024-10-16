@@ -286,7 +286,7 @@ fun_0E80()
 
 main()
 {
-    switch (a_xD7477C97) {
+    switch (g_mode) {
         case 0x0:
             fun_1050()
         case 0x1:
