@@ -34,7 +34,7 @@ fun_0E50()
 
 CalculateWattReward()
 {
-    new work = TempWorkGet(0);
-    new watt_reward = floatround((100.0 * floatlog(work, 4.0)), floatround_method:floatround_floor);
+    new last_defeated_level = TempWorkGet(0);
+    new watt_reward = floatround((100.0 * floatlog(last_defeated_level, 4.0)), floatround_method:floatround_floor);
     RewardWatts(watt_reward);
 }
