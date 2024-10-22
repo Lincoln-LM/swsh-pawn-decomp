@@ -7,7 +7,7 @@ RewardWatts(watt_delta)
     AddWatt(watt_delta);
     UpdateWalletWindow(true);
     SoundPostEvent("Play_SS_Common_get_watt");
-    PG_WordSetRegister_001(0);
+    PG_WordSetRegisterPlayerName(0);
     WordSetNumber(2, watt_delta, 0, 0);
     ShowMessageWindow_3(msg_common_wattget_01, 0, 3);
     FinishMessage(true);

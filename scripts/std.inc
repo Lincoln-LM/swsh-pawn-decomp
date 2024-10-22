@@ -6,13 +6,13 @@
 #include "hashes.inc"
 
 #pragma unused g_mode
-#pragma unused h_x107770
-#pragma unused i_xEA20B6C6
-#pragma unused j_xEA1E9F9B
+#pragma unused g_skip_point
+#pragma unused g_skip_point_end
+#pragma unused g_skip_point_max
 public g_mode = 0;
-public h_x107770 = 0;
-public i_xEA20B6C6 = 99;
-public j_xEA1E9F9B = 99;
+public g_skip_point = 0;
+public g_skip_point_end = 99;
+public g_skip_point_max = 99;
 
 stock Suspend(delay)
 {
@@ -67,8 +67,7 @@ stock FadeWait()
 {
     // functionally "while (true)" but inserts an extra jump instruction
     // at the start of the loop
-    for (;;)
-    {
+    for (;;) {
         if (FadeWait_() != 0) {
             return;
         }
@@ -76,11 +75,167 @@ stock FadeWait()
     }
 }
 
-stock AddFieldObject(hash) {
+stock AddFieldObject(hash)
+{
     return AddFieldObject_(hash);
 }
-stock DeleteFieldObject(hash) {
+
+stock DeleteFieldObject(hash)
+{
     return DeleteFieldObject_(hash);
+}
+
+stock ABKeyWait()
+{
+    return ABKeyWait_();
+}
+
+stock CopyString(destination[], source[], size)
+{
+    for (new i = 0; i < size; i++) {
+        if (!source[i]) {
+            return;
+        }
+        destination[i] = source[i];
+    }
+}
+
+stock WaitForSoundToFinish(sound)
+{
+    new max_timeout = 3600;
+    new time_waited = 0;
+    for (;;) {
+        if (!SoundIsPlaying(sound)) {
+            break;
+        }
+        time_waited++;
+        if (time_waited >= max_timeout) {
+            break;
+        }
+        Suspend(1);
+    }
+}
+
+stock StartTurnAround(arg0, arg1, arg2, arg3, arg4, arg5)
+{
+    return StartTurnAround_(arg0, arg1, arg2, arg3, arg4, arg5);
+}
+
+stock CleanUpRunningActionCommand(action_command)
+{
+    if (TestIsPokemonObject(action_command)) 
+    {
+        if (!TestIsExistPokemonMotion(action_command))
+        {
+            return;
+        }
+    }
+    for (;;) {
+        if (!CheckActionCommandRunningState_(action_command)) {
+            DeletePlayingActionCommand_(action_command);
+            return;
+        }
+        Suspend(1);
+    }
+}
+
+stock SetAnimationStateTrigger(arg0, arg1[])
+{
+    return SetAnimationStateTrigger_(arg0, arg1);
+}
+
+stock SetAnimationStateIntParameter(arg0, arg1[], arg2)
+{
+    return SetAnimationStateIntParameter_(arg0, arg1, arg2);
+}
+
+stock GetAnimationStateIntParameter(arg0, arg1[])
+{
+    return GetAnimationStateIntParameter_(arg0, arg1);
+}
+
+stock WaitForAnimation(arg0)
+{
+    if (!IsExistAnimationComponent_(arg0)) {
+        return;
+    }
+    SuspendN(1);
+    for (new i = 0;;) {
+        if (!TestIsPokemonObject(arg0)) {
+            if (IsEndCharacterMotion_(arg0)) {
+                return;
+            }
+        } else {
+            if (IsEndPokemonMotion_(arg0)) {
+                return;
+            }
+        }
+        i++;
+        if (i > 300) {
+            ResetAnimationState(arg0);
+            return;
+        }
+        Suspend(1);
+    }
+}
+
+stock ResetAnimationState(arg0)
+{
+    ResetAnimationState_(arg0);
+}
+
+stock AddParallelCommandControlFacial(field_object, arg1[], arg2[], arg3[], arg4[], arg5, arg6)
+{
+    if (TempWorkGet(14) == true) {
+        return;
+    }
+    if (TestIsPokemonObject(field_object)) {
+        if (arg5 == -1) {
+            arg5 = 0;
+        }
+        if (arg6 == -1) {
+            arg6 = 0;
+        }
+        AddParallelCommandControlFacial_(field_object, arg1, arg2, arg3, arg4, "eye01", 0, arg5, "mouth01", 0, arg6, "", -1, -1, "", 0, 0);
+    } else {
+        if (arg5 == -1) {
+            arg5 = 1;
+        }
+        if (arg6 == -1) {
+            arg6 = 1;
+        }
+        AddParallelCommandControlFacial_(field_object, arg1, arg2, arg3, arg4, "face", 0, arg5, "mouth", 0, arg6, "", -1, -1, "eye_switch", 0, 1);
+    }
+}
+
+stock SetTemp14()
+{
+    TempWorkSet(14, 1);
+}
+
+stock ClearTemp14()
+{
+    TempWorkSet(14, 0);
+}
+
+stock DisableFieldObjectLookAt(arg0, arg1)
+{
+    DisableFieldObjectLookAt_(arg0, arg1);
+}
+
+stock bool:TestIsPokemonObject(arg0)
+{
+    return IsPokemonObject(arg0);
+}
+
+stock bool:TestIsExistPokemonMotion(arg0)
+{
+    return IsExistPokemonMotion(arg0);
+}
+
+stock DoSetNPCDefaultMotion(arg0)
+{
+    return SetNPCDefaultMotion(arg0);
 }
 
 stock ShowMessageWindow(arg0, msg_hash, bubble_type_0, bubble_type_1, flags, arg5, arg6)
@@ -134,6 +289,35 @@ stock ShowMessageWindow_1(msg_hash, bubble_type_0, flags, bubble_type_1)
     ShowMessageWindow(0, msg_hash, bubble_type_0, bubble_type_1, flags, 0, 0);
 }
 
+stock GetMouthAnimation(arg0)
+{
+    new animations[10] = {
+        1,
+        3,
+        4,
+        2,
+        3,
+        2,
+        4,
+        1,
+        1,
+        1,
+    }
+    new animation_param = GetAnimationStateIntParameter(arg0, "mouth");
+    if (animation_param == 0) {
+        return 1;
+    }
+    return animations[animation_param-1];
+}
+
+stock ShowMouthBasedMessageWindow(arg0, msg_hash, arg2, bubble_type_0, flags, bubble_type_1, arg6)
+{
+    if (arg2 == -1) {
+        arg2 = GetMouthAnimation(arg0);
+    }
+    ShowMessageWindow(arg0, msg_hash, bubble_type_0, bubble_type_1, flags, arg2, arg6);
+}
+
 stock ShowMessageWindow_2(msg_hash, flags, bubble_type)
 {
     ShowMessageWindow_1(msg_hash, 102, flags, bubble_type);
@@ -171,6 +355,35 @@ stock CloseMessageWindow()
     MsgWinClose();
 }
 
+stock WaitUntilMessageWindowIsLoaded(arg0, arg1, arg2)
+{
+    MsgWinEmpty_()
+    for (;;) {
+        if (MsgWinLoadWait_() == true) {
+            break;
+        }
+        Suspend(1);
+    }
+    ListMenuAdd_(0, arg0, arg1, arg2);
+}
+
+stock RequestListInput(arg0, arg1, arg2, arg3)
+{
+    ListMenuStart_Seq(arg0, 0, arg1, arg2, arg3);
+    return TempWorkGet(12);
+}
+
+stock bool:RequestYesNo(arg0, arg1, arg2, arg3, arg4, arg5)
+{
+    YesNoWin_(arg0, 0, arg1, arg2, arg3, arg4, arg5);
+    return GetMessageInputBool();
+}
+
+stock bool:GetMessageInputBool()
+{
+    return TempWorkGet(12) == 0;
+}
+
 stock LoadExtraMessage(msg[])
 {
     ExtraMsgLoad(msg);
@@ -178,8 +391,7 @@ stock LoadExtraMessage(msg[])
 
 stock WaitUntilExtraMessageIsLoaded()
 {
-    for (;;)
-    {
+    for (;;) {
         if (ExtraMsgIsLoaded_()) {
             break;
         } else {
@@ -193,9 +405,55 @@ stock UnloadExtraMessage()
     ExtraMsgUnload();
 }
 
-stock PG_WordSetRegister_001(arg0)
+stock PG_WordSetRegisterPlayerName(arg0)
 {
     PG_WordSetRegister(1, arg0, 0, 0);
+}
+
+stock PG_WordSetRegisterPokemonType(arg0, arg1)
+{
+    PG_WordSetRegister(6, arg0, arg1, 0);
+}
+
+stock PG_WordSetRegisterItem(arg0, arg1, arg2)
+{
+    PG_WordSetRegister(11, arg0, arg1, arg2);
+}
+
+stock PG_WordSetRegisterPokemonMove(arg0, arg1)
+{
+    PG_WordSetRegister(10, arg0, arg1, 0);
+}
+
+stock PG_WordSetRegisterBagPocket(arg0, arg1)
+{
+    PG_WordSetRegister(15, arg0, arg1, 0);
+}
+
+stock PG_WordSetRegisterPokemonGender(arg0, arg1)
+{
+    PG_WordSetRegister(17, arg0, arg1, 0);
+}
+
+stock GetNextValidPartyMember(alive, party_index)
+{
+    new default_value = -1;
+    new party_count = PokePartyGetCount(0, 0);
+    while (party_index < party_count) {
+        switch (alive) {
+            // 8 = isEgg; 2 = current hp
+            case 1:
+                if (!PokePartyGetParam(party_index, 8, 0) && PokePartyGetParam(party_index, 2, 0) > 0) {
+                    return party_index;
+                }
+            case 0:
+                if (!PokePartyGetParam(party_index, 8, 0)) {
+                    return party_index;
+                }
+        }
+        party_index += 1;
+    }
+    return default_value;
 }
 
 stock UpdateWalletWindow(arg0)
