@@ -14,7 +14,7 @@ with open("file_hashes.json", "r", encoding="utf-8") as f:
 os.makedirs("build", exist_ok=True)
 os.chdir("build")
 
-paths = glob.glob("../scripts/*.p")
+paths = glob.glob("../scripts/**/*.p", recursive=True)
 for i, full_path in enumerate(paths):
     path = Path(full_path)
     script = path.stem
@@ -26,7 +26,7 @@ for i, full_path in enumerate(paths):
         subprocess.check_call(
             [
                 "../gf-pawncc/build/compiler/gf-pawncc",
-                f"../scripts/{script}.p",
+                full_path,
                 "-d0",
                 "-i=../scripts/",
                 "-a",
@@ -36,16 +36,16 @@ for i, full_path in enumerate(paths):
         subprocess.check_call(
             [
                 "../gf-pawncc/build/compiler/gf-pawncc",
-                f"../scripts/{script}.p",
+                full_path,
                 "-d0",
                 "-i../scripts/",
                 "-S1024",
             ],
         )
 
-        subprocess.check_call(["mv", f"../scripts/{script}.amx", "."])
+        subprocess.check_call(["mv", full_path.replace(".p", ".amx"), "."])
 
-        subprocess.check_call(["mv", f"../scripts/{script}.asm", "."])
+        subprocess.check_call(["mv", full_path.replace(".p", ".asm"), "."])
 
         disasm = PawnDisassembler(f"{script}.amx")
         with open(f"{script}.pasm", "w+", encoding="utf-8") as f:
