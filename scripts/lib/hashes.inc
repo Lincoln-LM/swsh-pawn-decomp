@@ -745,3 +745,6 @@
 #define sub_event_135_ballget_04 0x99493349338010c7
 #define sub_event_135_ballget_05 0x9949324933800f14
 #define sub_event_135_ballget_06 0x994935493380142d
+#define msg_wide_road_rigel2_oldmemo_00 0x46ee007d75ba9328
+#define msg_wide_road_rigel2_oldmemo_01 0x46ee017d75ba94db
+#define msg_wide_road_rigel2_oldmemo_02 0x46ee027d75ba968e

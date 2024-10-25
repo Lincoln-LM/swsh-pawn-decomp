@@ -328,6 +328,11 @@ stock ShowMessageWindow_3(msg_hash, flags, bubble_type)
     ShowMessageWindow_2(msg_hash, flags | (1 << 0), bubble_type);
 }
 
+stock ShowMessageWindow_4(msg_hash, flags)
+{
+    ShowMessageWindow_1(msg_hash, 47, flags | (1 << 2), 3);
+}
+
 stock WaitForMessageEnd()
 {
     for (;;)
