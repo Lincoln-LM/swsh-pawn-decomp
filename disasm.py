@@ -23,4 +23,4 @@ for script in tqdm(glob.glob("./amx/*.amx")):
     disassembler.dump_data(f"./disasm/{path.stem}.data.bin")
 
 with open("file_hashes.json", "w+", encoding="utf-8") as f:
-    json.dump(file_hashes, f)
+    json.dump(dict(sorted(file_hashes.items())), f)
