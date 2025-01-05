@@ -43,9 +43,11 @@ for i, full_path in enumerate(paths):
             ],
         )
 
-        subprocess.check_call(["mv", full_path.replace(".p", ".amx"), "."])
+        # location of compiled .amx is either in cwd (correct) or next to the script
+        if os.path.exists(full_path.replace(".p", ".amx")):
+            subprocess.check_call(["mv", full_path.replace(".p", ".amx"), "."])
 
-        subprocess.check_call(["mv", full_path.replace(".p", ".asm"), "."])
+            subprocess.check_call(["mv", full_path.replace(".p", ".asm"), "."])
 
         disasm = PawnDisassembler(f"{script}.amx")
         with open(f"{script}.pasm", "w+", encoding="utf-8") as f:
