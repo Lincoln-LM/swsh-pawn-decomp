@@ -2,6 +2,7 @@
 
 from io import BufferedReader
 import json
+from dataclasses import dataclass
 from fnv import fnv1_32
 from opcodes import Opcode
 
@@ -19,6 +20,12 @@ def read_int(
         reader.seek(offset)
     return int.from_bytes(reader.read(size), "little", signed=signed)
 
+@dataclass
+class BasicBlock:
+    """A basic block of instructions"""
+    successors: list["BasicBlock"]
+    address: int
+    instructions: list[tuple[int, Opcode, ...]]
 
 class PawnDisassembler:
     """Utility to disassemble & infodump a Pawn .amx file"""
@@ -107,7 +114,10 @@ class PawnDisassembler:
         self.code += b"\x00" * (self.memsize - len(self.code))
         self.expand(self.size - self.cod, self.memsize)
         assert len(self.code) == self.memsize
-        self.labels = {}
+        self.labels = {
+            0: "exit"
+        }
+        self.blocks = None
 
         self.explore()
 
@@ -134,6 +144,7 @@ class PawnDisassembler:
                     cip += 8
                     num = int.from_bytes(self.code[cip : cip + 8], "little")
                     cip += 8
+                    self.labels[instr_cip] = f"switch_{instr_cip:04X}"
                     for i in range(num + 1):
                         target = (
                             int.from_bytes(
@@ -408,47 +419,16 @@ class PawnDisassembler:
                     cip += 8
                     assert False, f"{opcode.name} unimplemented"
 
-    def infodump(self) -> str:
-        """Generate an info dump of the script"""
-        info = ""
-        info += f"// stack size: {self.stack_size}\n"
-        info += f"// {self.cod=:X}\n"
-        info += f"// {self.dat=:X}\n"
-        info += f"// {self.hea=:X}\n"
-        info += f"// {self.stp=:X}\n"
-        info += f"// {self.cip=:X}\n"
-        info += f"// {self.publics=:X}\n"
-        info += f"// {self.natives=:X}\n"
-        info += f"// {self.libraries=:X}\n"
-        info += f"// {self.pubvars=:X}\n"
-        info += f"// {self.tags=:X}\n"
-        info += f"// {self.nametable=:X}\n"
-        info += f"// {self.overlays=:X}\n"
-        for lib in self.library_names:
-            info += f"#pragma library {lib}\n"
-        info += "\n"
-        for native_function in self.native_functions:
-            info += f"native {native_function}();\n"
-        for addr, name in self.public_functions.items():
-            info += f"{name}();\n"
-        info += "\n"
-        for flags, tag in self.tag_syms:
-            info += f"#pragma <> {tag} // {'fixed' if flags & 0x40000000 != 0 else ''} ({flags & 0x3FFFFFFF})\n"
-        info += "\n"
-        for addr, name in sorted(self.pubvar_syms):
-            pubvar_value = int.from_bytes(
-                self.code[self.dat - self.cod + addr : self.dat - self.cod + addr + 8],
-                "little",
-                signed=True,
-            )
-            info += f"#pragma unused {name}\n"
-            info += f"public {name} = {pubvar_value};\n"
-
-        return info
-
-    def disasm(self) -> str:
-        """Generate a disassembly of the script"""
-        disassembly = ""
+    def explore_blocks(self):
+        """Run through opcodes to generate basic blocks"""
+        self.blocks = {
+            addr: BasicBlock(
+                [],
+                addr,
+                [],
+            ) for addr in self.labels
+        }
+        current_block = None
         cip = 0
         while cip < self.codesize:
             instr_cip = cip
@@ -460,8 +440,7 @@ class PawnDisassembler:
             )
             label = self.labels.get(instr_cip, None)
             if label is not None:
-                disassembly += "\n" + label + ":\n"
-            disassembly += f"{instr_cip:04X} {opcode.name}"
+                current_block = self.blocks[instr_cip]
             match opcode:
                 case Opcode.OP_PROC:
                     cip += 8
@@ -482,7 +461,10 @@ class PawnDisassembler:
                             if i == 0
                             else hex(int.from_bytes(self.code[cip - 8 : cip], "little"))
                         )
-                        disassembly += f" {case}: {self.labels[target]}\n"
+                        current_block.successors.append(self.blocks[target])
+                        current_block.instructions.append(
+                            (instr_cip, opcode, case, self.labels[target])
+                        )
                         cip += 8
                         cip += 8
                         assert 0 <= target <= self.memsize
@@ -499,7 +481,9 @@ class PawnDisassembler:
                     assert stack_frame_size % 8 == 0
                     arg_count = stack_frame_size // 8
                     assert index < len(self.native_functions)
-                    disassembly += f", {self.native_functions[index]} {arg_count=}"
+                    current_block.instructions.append(
+                        (instr_cip, opcode, self.native_functions[index], arg_count)
+                    )
                     cip += 8
                 # 1 param packed
                 case (
@@ -536,7 +520,9 @@ class PawnDisassembler:
                     | Opcode.OP_PUSH_P_ADR
                 ):
                     cip += 8
-                    disassembly += f", #{packed_param}"
+                    current_block.instructions.append(
+                        (instr_cip, opcode, packed_param)
+                    )
                 # data 1 param packed
                 case (
                     Opcode.OP_LOAD_P_PRI
@@ -551,7 +537,9 @@ class PawnDisassembler:
                     | Opcode.OP_DEC_P
                 ):
                     cip += 8
-                    disassembly += f", #{packed_param}"
+                    current_block.instructions.append(
+                        (instr_cip, opcode, packed_param)
+                    )
                 # stack 1 param packed
                 case (
                     Opcode.OP_LOAD_P_S_PRI
@@ -566,7 +554,9 @@ class PawnDisassembler:
                     | Opcode.OP_DEC_P_S
                 ):
                     cip += 8
-                    disassembly += f", #{packed_param}"
+                    current_block.instructions.append(
+                        (instr_cip, opcode, packed_param)
+                    )
                 # 5 param
                 case (
                     Opcode.OP_PUSH5_C
@@ -575,12 +565,16 @@ class PawnDisassembler:
                     | Opcode.OP_PUSH5_ADR
                 ):
                     cip += 8
+                    params = []
                     for _ in range(5):
                         param = int.from_bytes(
                             self.code[cip : cip + 8], "little", signed=True
                         )
-                        disassembly += f", #{param}"
+                        params.append(param)
                         cip += 8
+                    current_block.instructions.append(
+                        (instr_cip, opcode, *params)
+                    )
                 # 4 param
                 case (
                     Opcode.OP_PUSH4_C
@@ -589,12 +583,16 @@ class PawnDisassembler:
                     | Opcode.OP_PUSH4_ADR
                 ):
                     cip += 8
+                    params = []
                     for _ in range(4):
                         param = int.from_bytes(
                             self.code[cip : cip + 8], "little", signed=True
                         )
-                        disassembly += f", #{param}"
+                        params.append(param)
                         cip += 8
+                    current_block.instructions.append(
+                        (instr_cip, opcode, *params)
+                    )
                 # 3 param
                 case (
                     Opcode.OP_PUSH3_C
@@ -603,12 +601,16 @@ class PawnDisassembler:
                     | Opcode.OP_PUSH3_ADR
                 ):
                     cip += 8
+                    params = []
                     for _ in range(3):
                         param = int.from_bytes(
                             self.code[cip : cip + 8], "little", signed=True
                         )
-                        disassembly += f", #{param}"
+                        params.append(param)
                         cip += 8
+                    current_block.instructions.append(
+                        (instr_cip, opcode, *params)
+                    )
                 # 2 param
                 case (
                     Opcode.OP_LOAD_S_BOTH
@@ -621,12 +623,16 @@ class PawnDisassembler:
                     | Opcode.OP_LOAD_BOTH
                 ):
                     cip += 8
+                    params = []
                     for _ in range(2):
                         param = int.from_bytes(
                             self.code[cip : cip + 8], "little", signed=True
                         )
-                        disassembly += f", #{param}"
+                        params.append(param)
                         cip += 8
+                    current_block.instructions.append(
+                        (instr_cip, opcode, *params)
+                    )
                 # 1 param
                 case (
                     Opcode.OP_LODB_I
@@ -669,8 +675,10 @@ class PawnDisassembler:
                     param_1 = int.from_bytes(
                         self.code[cip : cip + 8], "little", signed=True
                     )
-                    disassembly += f", #{param_1}"
                     cip += 8
+                    current_block.instructions.append(
+                        (instr_cip, opcode, param_1)
+                    )
                 case (
                     Opcode.OP_LOAD_PRI
                     | Opcode.OP_LOAD_ALT
@@ -687,8 +695,10 @@ class PawnDisassembler:
                     param_1 = int.from_bytes(
                         self.code[cip : cip + 8], "little", signed=True
                     )
-                    disassembly += f", #{param_1}"
                     cip += 8
+                    current_block.instructions.append(
+                        (instr_cip, opcode, param_1)
+                    )
                 case (
                     Opcode.OP_LOAD_S_PRI
                     | Opcode.OP_LOAD_S_ALT
@@ -705,8 +715,10 @@ class PawnDisassembler:
                     param_1 = int.from_bytes(
                         self.code[cip : cip + 8], "little", signed=True
                     )
-                    disassembly += f", #{param_1}"
                     cip += 8
+                    current_block.instructions.append(
+                        (instr_cip, opcode, param_1)
+                    )
                 # 0 param
                 case (
                     Opcode.OP_LOAD_I
@@ -767,6 +779,9 @@ class PawnDisassembler:
                     | Opcode.OP_BREAK
                 ):
                     cip += 8
+                    current_block.instructions.append(
+                        (instr_cip, opcode,)
+                    )
                 # relocation
                 case (
                     Opcode.OP_CALL
@@ -793,15 +808,69 @@ class PawnDisassembler:
                     )
 
                     assert 0 <= target <= self.memsize, hex(target)
+                    # function calls dont end blocks
+                    if opcode != Opcode.OP_CALL:
+                        current_block.successors.append(self.blocks[target])
                     target = self.labels.get(target, None) or target
-                    disassembly += f", {target}"
+                    current_block.instructions.append(
+                        (instr_cip, opcode, target)
+                    )
                     cip += 8
                 case Opcode.OP_NONE:
                     cip += 8
                 case _:
                     cip += 8
                     assert False, f"{opcode} unimplemented"
-            disassembly += "\n"
+        return self.blocks
+
+    def infodump(self) -> str:
+        """Generate an info dump of the script"""
+        info = ""
+        info += f"// stack size: {self.stack_size}\n"
+        info += f"// {self.cod=:X}\n"
+        info += f"// {self.dat=:X}\n"
+        info += f"// {self.hea=:X}\n"
+        info += f"// {self.stp=:X}\n"
+        info += f"// {self.cip=:X}\n"
+        info += f"// {self.publics=:X}\n"
+        info += f"// {self.natives=:X}\n"
+        info += f"// {self.libraries=:X}\n"
+        info += f"// {self.pubvars=:X}\n"
+        info += f"// {self.tags=:X}\n"
+        info += f"// {self.nametable=:X}\n"
+        info += f"// {self.overlays=:X}\n"
+        for lib in self.library_names:
+            info += f"#pragma library {lib}\n"
+        info += "\n"
+        for native_function in self.native_functions:
+            info += f"native {native_function}();\n"
+        for addr, name in self.public_functions.items():
+            info += f"{name}();\n"
+        info += "\n"
+        for flags, tag in self.tag_syms:
+            info += f"#pragma <> {tag} // {'fixed' if flags & 0x40000000 != 0 else ''} ({flags & 0x3FFFFFFF})\n"
+        info += "\n"
+        for addr, name in sorted(self.pubvar_syms):
+            pubvar_value = int.from_bytes(
+                self.code[self.dat - self.cod + addr : self.dat - self.cod + addr + 8],
+                "little",
+                signed=True,
+            )
+            info += f"#pragma unused {name}\n"
+            info += f"public {name} = {pubvar_value};\n"
+
+        return info
+
+    def disasm(self) -> str:
+        """Generate a disassembly of the script"""
+        if self.blocks is None:
+            self.explore_blocks()
+        disassembly = ""
+        for block_addr, block in sorted(self.blocks.items()):
+            disassembly += f"\n// {block_addr:04X}\n"
+            disassembly += f"{self.labels[block_addr]}\n"
+            for address, opcode, *args in block.instructions:
+                disassembly += f"{opcode.name} {', '.join(map(str, args))} // {address:04X}\n"
         return disassembly
 
     def expand(self, codesize: int, memsize: int):
