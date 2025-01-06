@@ -27,6 +27,15 @@ class BasicBlock:
     address: int
     instructions: list[tuple[int, Opcode, ...]]
 
+@dataclass
+class Label:
+    """A string-address pair representing a label for a code block"""
+    address: int
+    name: str
+
+    def __str__(self):
+        return self.name
+
 class PawnDisassembler:
     """Utility to disassemble & infodump a Pawn .amx file"""
 
@@ -115,7 +124,7 @@ class PawnDisassembler:
         self.expand(self.size - self.cod, self.memsize)
         assert len(self.code) == self.memsize
         self.labels = {
-            0: "exit"
+            0: Label(0, "exit")
         }
         self.blocks = None
 
@@ -132,7 +141,7 @@ class PawnDisassembler:
     def explore(self):
         """Run through opcodes to find labels"""
         for addr, name in self.public_functions.items():
-            self.labels[addr] = name
+            self.labels[addr] = Label(addr, name)
         cip = 0
         while cip < self.codesize:
             instr_cip = cip
@@ -144,7 +153,7 @@ class PawnDisassembler:
                     cip += 8
                     num = int.from_bytes(self.code[cip : cip + 8], "little")
                     cip += 8
-                    self.labels[instr_cip] = f"switch_{instr_cip:04X}"
+                    self.labels[instr_cip] = Label(instr_cip, f"switch_{instr_cip:04X}")
                     for i in range(num + 1):
                         target = (
                             int.from_bytes(
@@ -158,7 +167,7 @@ class PawnDisassembler:
                             if i == 0
                             else hex(int.from_bytes(self.code[cip - 8 : cip], "little"))
                         )
-                        self.labels[target] = f"switch_{instr_cip:04X}_case_{case}"
+                        self.labels[target] = Label(target, f"switch_{instr_cip:04X}_case_{case}")
                         cip += 8
                         cip += 8
                         assert 0 <= target <= self.memsize
@@ -405,13 +414,13 @@ class PawnDisassembler:
                     )
                     if target not in self.labels:
                         self.labels[target] = (
-                            f"{'fun' if opcode == Opcode.OP_CALL else 'lab'}_{target:04X}"
+                            Label(target, f"{'fun' if opcode == Opcode.OP_CALL else 'lab'}_{target:04X}")
                         )
                     cip += 8
                 # function prologue
                 case Opcode.OP_PROC:
                     if cip not in self.labels:
-                        self.labels[cip] = f"fun_{cip:04X}"
+                        self.labels[cip] = Label(cip, f"fun_{cip:04X}")
                     cip += 8
                 case Opcode.OP_NONE:
                     cip += 8
@@ -422,11 +431,11 @@ class PawnDisassembler:
     def explore_blocks(self):
         """Run through opcodes to generate basic blocks"""
         self.blocks = {
-            addr: BasicBlock(
+            label.address: BasicBlock(
                 [],
-                addr,
+                label,
                 [],
-            ) for addr in self.labels
+            ) for label in self.labels.values()
         }
         current_block = None
         cip = 0
@@ -444,6 +453,9 @@ class PawnDisassembler:
             match opcode:
                 case Opcode.OP_PROC:
                     cip += 8
+                    current_block.instructions.append(
+                        (instr_cip, opcode)
+                    )
                 case Opcode.OP_CASETBL:
                     cip += 8
                     num = int.from_bytes(self.code[cip : cip + 8], "little")
