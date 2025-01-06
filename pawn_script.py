@@ -24,7 +24,7 @@ def read_int(
 class BasicBlock:
     """A basic block of instructions"""
     successors: list["BasicBlock"]
-    address: int
+    label: "Label"
     instructions: list[tuple[int, Opcode, ...]]
 
 @dataclass
