@@ -89,33 +89,27 @@ def print_block(block, indent=0, is_case=False):
                     f"pri = {args[0]}({', '.join(f'var_{-sp - arg * 8 - 8}' for arg in range(last_stored_const // 8))})",
                     indent=indent,
                 )
-            case Opcode.OP_JUMP | Opcode.OP_JEQ | Opcode.OP_JGEQ | Opcode.OP_JGRTR | Opcode.OP_JLEQ | Opcode.OP_JNEQ | Opcode.OP_JNZ | Opcode.OP_JZER:
-                # assume all cases only jump to the end of the case
-                if not is_case:
-                    print_with_indent(
-                        f"{opcode.name} {', '.join(map(str, args))}", indent=indent
-                    )
-
             case _:
                 print_with_indent(
                     f"{opcode.name} {', '.join(map(str, args))}", indent=indent
                 )
+    for successor in block.successors:
+        if not successor.label.address in visited_blocks:
+            print_block(successor, indent=indent)
     if is_case:
         indent -= 1
         print_with_indent("}", indent=indent)
-    else:
-        for successor in block.successors:
-            if not successor.label.address in visited_blocks:
-                print_block(successor, indent=indent)
     if is_case_table_block:
         # this is ugly magical and assumes the last successor of a case is always the finally block
         indent -= 1
         print_with_indent("}", indent=indent)
-        finally_block = disassembler.blocks[
+        successors = disassembler.blocks[
             block.instructions[0][3].address
-        ].successors[-1]
-        if not finally_block.label.address in visited_blocks:
-            print_block(disassembler.blocks[finally_block.label.address], indent=indent)
+        ].successors
+        if successors:
+            finally_block = successors[-1]
+            if not finally_block.label.address in visited_blocks:
+                print_block(disassembler.blocks[finally_block.label.address], indent=indent)
     elif is_function_block:
         indent -= 1
         print_with_indent("}", indent=indent)
